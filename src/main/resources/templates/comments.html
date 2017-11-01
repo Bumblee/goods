@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<div class="wcl-list" name="comment_load_box">
+	<li th:each="citem:${comments?.items}">
+	<div class="text" th:text="${citem?.content}">评论详情。</div>
+	<div hidden="hidden" class="goodss_id" th:text="${citem?.goodss?.id}"></div>
+	</li>
+	</div>
+<div class="text-center" th:if="${comments?.totalcount gt 0}">
+<ul class="pagination">
+        <li style="list-style-type:none;" th:class="${comments?.getPage() le 1} ? disabled">
+            <a th:href="|${comments?.getPre()}|" href="?page=1" aria-label="上一页">
+                <i class="material-icons">上一页</i>
+            </a>
+        </li>
+        <li style="list-style-type:none;" th:each="page:${comments?.getPages()}" th:class="${comments?.getPage() == page} ? active">
+            <a th:href="|${page}|">[[${page}]]
+                </a>
+        </li>
+        <li style="list-style-type:none;" th:class="${comments?.getPage() ge comments?.getPagecount()} ? disabled">
+            <a th:href="|${comments?.getNext()}|" href="?page=2" aria-label="下一页">
+                <i class="material-icons">下一页</i>
+            </a>
+        </li>
+    </ul>
+</div>
+</body>
+<script type="text/javascript">
+$(".comment").on("click", "a", function(e) {
+    var goodssld = $(this).parents('.text-center').prev('.wcl-list').find($(".goodss_id")).last().text();
+    e.preventDefault();
+    var JCommentUl = $(this).closest(".comment").find("[name='comment_load_box']");
+    JCommentUl.load("/goodss/" + goodssld + "/comments/" + $(this).attr("href"));
+});
+</script>
+</html>

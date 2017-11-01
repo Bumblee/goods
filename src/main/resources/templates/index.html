@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+
+<meta charset="UTF-8" />
+<link rel="stylesheet" type="text/css" href="/css/jquery.datetimepicker.css" th:href="@{/css/jquery.datetimepicker.css}"/>
+<title>Insert title here</title>
+</head>
+<body>
+<div class="new"></div>
+<a th:href="@{/goodss}" class="add">创建</a>
+<br><br>
+<form action="/">
+<input class="mdl-textfield__input p-t-20" type="text" id="sample6" placeholder="搜索" name="keyword">
+</form>
+<div th:each="item,row: ${goodss.items}">
+<div>商品名字：
+<a th:href="@{'/goodss/'+${item?.id}+'/detail'}"><h2 th:text="${item?.name}"></h2></a>
+</div>
+<div>商品图片：<br>
+<!-- <div th:each="image,row:${item?.getImages()}">
+	<img th:src="'/images/'+${image}" width="5%">
+</div> -->
+<img th:src="'/images/'+${item?.getImages().get(0)}" width="5%">
+</div>
+<div>商品内容：
+<h2 th:text="${item?.content}"></h2>
+</div>
+<a class="delete" th:href="@{'/goodss/'+${item?.id}+'/delete'}">删除</a>
+<a class="edit" th:href="@{'/goodss/'+${item?.id}+'/edit'}" th:id="${item?.id}">编辑</a>
+	<div class="comment">
+	<div name="LoadComments" title="加载更多评论" data-type="goodss" id="comment-number">
+	<span class="word"> <span th:text="${item?.cmcount}">0</span> <span>条评论</span> </span>
+	</div>
+	<span class="goodss_id" hidden="hidden" th:text=${item?.id}></span>
+	 <div class="wcl-list" name="comment_load_box">
+	<li th:each="citem:${item?.comments}">
+	<div class="text" th:text="${citem?.content}">评论详情。</div>
+	</li>
+	</div>
+	<div class="commentBox">
+	<form name="fm_info_cm" method="post" action="#" th:action="@{'/goodss/'+${item?.id}+'/comment'}">
+    <textarea class="textarea" name="content"  placeholder="发表评论"></textarea><br>
+    <div data-error="content"></div>
+    <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect sendBtn" type="button" name="comment_submit">发布评论</button>
+    <button class="Jformhide mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect cancelBtn" type="button">取消</button>
+    </form>
+    </div>
+	</div>
+<br>
+</div>
+<ul class="pagination">
+<li th:class="${goodss?.getPage() le 1} ? disabled">
+<a th:href="|?page=${goodss?.getPre()}|" href="?page=1" aria-label="上一页">
+<i class="material-icons">上一页</i>
+</a>
+</li>
+<li th:each="page:${goodss?.getPages()}" th:class="${goodss?.getPage() == page} ? active">
+<a th:href="|?page=${page}|" href="?page=1">[[${page}]]
+<span class="sr-only"></span>
+</a>
+</li>
+<li th:class="${goodss?.getPage() ge goodss?.getPagecount()} ? disabled">
+<a th:href="|?page=${goodss?.getNext()}|" href="?page=2" aria-label="下一页">
+<i class="material-icons">下一页</i>
+</a>
+</li>
+</ul>
+</body>
+<script src="../static/js/jquery-3.0.0.min.js" th:src="@{/js/jquery-3.0.0.min.js}"></script> 
+<script src="../static/js/material.min1.js" th:src="@{/js/material.min1.js}"></script>
+<script src="../static/js/jedate.js" th:src="@{/js/jedate.js}"></script>
+<script type="text/javascript">
+$(".add").click(function(){
+	event.preventDefault();
+    $(".new").load("/goodss",function(){
+    	$(".new").slideDown();
+    	try {componentHandler.upgradeDom();}catch(e){};
+    	jeDate({
+    		dateCell:"#datetimepicker",
+    		format:"YYYY-MM-DD hh:mm:ss",
+    		festival:true,
+    		isTime: true,
+    		minDate:"2014-09-19 00:00:00",
+    		okfun:function(val){alert(val)}
+    	});
+    	jeDate({
+    		dateCell:"#datetimepicker2",
+    		format:"YYYY-MM-DD hh:mm:ss",
+    		festival:true,
+    		isTime: true,
+    		minDate:"2014-09-19 00:00:00",
+    		okfun:function(val){alert(val)}
+    	})
+    });
+});
+$(".edit").click(function(){
+	event.preventDefault();
+    $(".new").load("/goodss/"+$(this).attr("id")+"/edit",function(){
+    	$(".new").slideDown();
+    	try {componentHandler.upgradeDom();}catch(e){};
+    	jeDate({
+    		dateCell:"#datetimepicker",
+    		format:"YYYY-MM-DD hh:mm:ss",
+    		festival:true,
+    		isTime: true,
+    		minDate:"2014-09-19 00:00:00",
+    		okfun:function(val){alert(val)}
+    	});
+    	jeDate({
+    		dateCell:"#datetimepicker2",
+    		format:"YYYY-MM-DD hh:mm:ss",
+    		festival:true,
+    		isTime: true,
+    		minDate:"2014-09-19 00:00:00",
+    		okfun:function(val){alert(val)}
+    	})
+    });
+});
+$(document).on("click", "[name='submit_goodss']", function(e) {
+	var form = $(this).parents("form");
+	var formData = new FormData($('#uploadForm')[0]);
+	$.ajax({
+    	url: form.attr("action"),  
+        type: 'POST',  
+        data: formData,  
+        dataType: 'JSON',  
+        cache: false,  
+        processData: false,  
+        contentType: false,
+    }).done(function(json){
+   	 if (json.result == "success") {
+     	console.log(json);
+        setTimeout(function(){
+       	 window.location.href = "/";
+       },1000);
+     } else {
+    	 $.each(json, function(i, val) {
+             if (i != "result") {
+                 if ($("[data-error='" + i + "']").length)
+                     $("[data-error='" + i + "']").html(val);
+             }
+         });
+     	}
+	});
+});
+$(document).on("click", "[name='edit_goodss']", function(e) {
+	var form = $(this).parents("form");
+    $.post(form.attr("action"), form.serialize(), function(json) {
+        if (json.result == "success") {
+        	console.log(json);
+            setTimeout(function(){
+           	 window.location.href = "/";
+           },1000);
+        } else {
+            $.each(json, function(i, val) {
+                if (i != "result") {
+                    if ($("[data-error='" + i + "']").length)
+                        $("[data-error='" + i + "']").html(val);
+                    
+                }
+            });
+        }
+    }, "json");
+});
+$("body").on("click", ".delete", function(event) {
+    event.preventDefault(); //使a自带的方法失效，即无法跳转到href中的URL(http://www.baidu.com)
+    $.post($(this).attr("href"), function(json) {
+        if (json.result == "success") {
+        	console.log(json);
+        	setTimeout(function(){
+              	 window.location.href = "/";
+              },1000);
+        } else {
+            $.each(json, function(i, val) {
+                if (i != "result") {
+                    if ($("[data-error='" + i + "']").length)
+                        $("[data-error='" + i + "']").html(val);
+                }
+            });
+        }
+    }, "json");
+});
+$("*[name='comment_submit']").click(function(){
+    var url = $(this).parents("form").attr("action");
+    var data = $(this).parents("form").serialize();
+    $("[data-error]").html("");
+    $.post(url, data, function(json) {
+        var result = 1;
+        if(json.result == "success"){
+        	setTimeout(function(){
+             	 window.location.href = "/";
+             },1000);
+        }else {
+            $.each(json, function(i, val) {
+                if (i != "result") {
+                    if ($("[data-error='" + i + "']").length)
+                        $("[data-error='" + i + "']").html(val);
+                }
+            });
+        }
+    }, "json");
+});
+$(document).on("click","[name=LoadComments]",function(){
+    var init_JCommentUl = $(this).closest(".comment").find($("*[name='JCommentUl']")).prop("outerHTML");
+    var JCommentUl = $(this).closest(".comment").find("[name='comment_load_box']");
+    if($(this).hasClass("active")){//已添加过
+        //JCommentUl.load("/info/"+$(this).closest(".comment").find(".info_id").text()+"/comments" + "/1");
+        JCommentUl.empty();
+        //JCommentUl.append(init_JCommentUl);
+    }else{
+        JCommentUl.load("/goodss/"+$(this).closest(".comment").find(".goodss_id").last().text()+"/comments" + "/1");
+    }
+    $(this).toggleClass("active");$(this).children("i").toggleClass("top");
+$("[name=arrow-icon]").toggleClass("active");
+}); 
+</script>
+</html>
